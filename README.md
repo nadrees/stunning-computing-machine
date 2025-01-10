@@ -24,3 +24,7 @@ NOTE: Here we're using the version from the latest stable branch. The master bra
 Check that clang supports riskv32:
 
 > clang -print-targets | grep riscv32
+
+# Rust Embedded Assembly
+
+When we reach https://operating-system-in-1000-lines.vercel.app/en/02-assembly#inline-assembly in the guide, we'll instead be using Rust's inline assembly functionality: https://doc.rust-lang.org/reference/inline-assembly.html
