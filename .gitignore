@@ -7,3 +7,7 @@
 *.bin
 *.log
 *.pcap
+
+# Added by cargo
+
+/target

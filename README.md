@@ -25,6 +25,29 @@ Check that clang supports riskv32:
 
 > clang -print-targets | grep riscv32
 
+## Install the needed rust target
+
+> rustup target add riscv32imafc-unknown-none-elf
+
+## Install recommended cargo utilties
+
+> cargo install cargo-binutils
+
+> rustup component add llvm-tools
+
+See https://github.com/rust-embedded/cargo-binutils#readme for details
+
+## Recommended VSCode Extensions
+
+* rust-analyzer: https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer
+* LinkerScript: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
+
 # Rust Embedded Assembly
 
 When we reach https://operating-system-in-1000-lines.vercel.app/en/02-assembly#inline-assembly in the guide, we'll instead be using Rust's inline assembly functionality: https://doc.rust-lang.org/reference/inline-assembly.html
+
+## Linker Scripts
+
+Part of writing operation systems (or embedded code in general) is linker scripts. We can follow the pages at https://docs.rust-embedded.org/embedonomicon/memory-layout.html for instructions and examples on how to use them.
+
+For a primer on what a linker script even is, check out https://mcyoung.xyz/2021/06/01/linker-script/
