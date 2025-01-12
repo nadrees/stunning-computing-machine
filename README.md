@@ -41,6 +41,8 @@ See https://github.com/rust-embedded/cargo-binutils#readme for details
 
 * rust-analyzer: https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer
 * LinkerScript: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
+* Even Better TOML: https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml
+* Dependi: https://marketplace.visualstudio.com/items?itemName=fill-labs.dependi
 
 # Rust Embedded Assembly
 
