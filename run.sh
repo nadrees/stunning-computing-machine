@@ -9,5 +9,14 @@ set -xue
 # QEMU file path
 QEMU=qemu-system-riscv32
 
+# build the binary
+cargo build
+
 # Start QEMU
-$QEMU -machine virt -bios default -nographic -serial mon:stdio --no-reboot
+$QEMU \
+    -machine virt \
+    -bios default \
+    -nographic \
+    -serial mon:stdio \
+    --no-reboot \
+    -kernel target/riscv32imafc-unknown-none-elf/debug/kernel
