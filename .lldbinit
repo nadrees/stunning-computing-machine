@@ -1,2 +1,0 @@
-target create --no-dependents --arch riscv32 target/riscv32imafc-unknown-none-elf/debug/kernel
-gdb-remote 1234

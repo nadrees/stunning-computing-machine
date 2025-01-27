@@ -53,3 +53,41 @@ When we reach https://operating-system-in-1000-lines.vercel.app/en/02-assembly#i
 Part of writing operation systems (or embedded code in general) is linker scripts. We can follow the pages at https://docs.rust-embedded.org/embedonomicon/memory-layout.html for instructions and examples on how to use them.
 
 For a primer on what a linker script even is, check out https://mcyoung.xyz/2021/06/01/linker-script/
+
+# Debugging
+
+Debugging the kernel can be difficult, especially if it has issues booting initially. Debugging can be done using 3 tools:
+
+1. QEMU in debugging mode
+2. The lldb debugger
+3. objdump
+
+## QEMU in debugging mode
+
+https://en.wikibooks.org/wiki/QEMU/Debugging_with_QEMU
+
+In order to debug the kernel, add in the `-s` and `-S` flags to `run.sh` when launching QEMU. This will cause QEMU to stop and wait for a debugger (`-S`) and listend for that debugger on tcp:1234 (`-s`). 
+
+## The lldb debugger
+
+Once QEMU is running and waiting, we need to connect to it with a debugger. We can use `lldb` to achieve this. Run `lldb` and configure the file being debugged, before connecting to the remote debug server exposed by QEMU in the previous step:
+
+```
+> lldb
+lldb> target create --no-dependents --arch riscv32 target/riscv32imafc-unknown-none-elf/debug/kernel 
+lldb> gdb-remote 1234
+```
+
+Once connected you should start seeing either assembly or the rust source, depending on where the current frame is.
+
+## objdump
+
+When viewing rust in particular, the symbols are not currently loaded well, so it can be difficult to understand what's being executed in any given frame. It can be helpful to match the current value of the program counter (`pc`) register to the assembly instead.
+
+To see this, run 
+
+```
+> cargo objdump -- -d
+```
+
+To get a print out of the current program and its related assembly.

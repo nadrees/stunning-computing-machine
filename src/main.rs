@@ -1,37 +1,34 @@
 #![no_main]
 #![no_std]
 
-use core::{arch::asm, panic::PanicInfo, ptr};
+use core::{panic::PanicInfo, ptr};
 
 #[panic_handler]
 fn panic(_panic: &PanicInfo<'_>) -> ! {
     loop {}
 }
 
+unsafe extern "C" {
+    unsafe static mut __bss: u8;
+    unsafe static mut __bss_end: u8;
+}
+
 #[link_section = ".text.boot"]
 #[no_mangle]
+#[naked_function::naked]
 pub unsafe extern "C" fn boot() -> ! {
-    unsafe extern "C" {
-        unsafe static mut __bss: u8;
-        unsafe static mut __bss_end: u8;
-        unsafe static __stack_top: u8;
-    }
-
     // initialize stack pointer to correct location
-    unsafe {
-        asm!(
-            "mv sp, {sp}",
-            sp = in(reg) &__stack_top
-        );
-    };
-
-    let count = &raw const __bss as usize - &raw const __bss_end as usize;
-    ptr::write_bytes(&raw mut __bss, 0, count);
-
-    main();
+    asm!(
+        "la a0, __stack_top
+        mv sp, a0
+        j main",
+    );
 }
 
 #[no_mangle]
 fn main() -> ! {
+    let count = &raw const __bss as usize - &raw const __bss_end as usize;
+    unsafe { ptr::write_bytes(&raw mut __bss, 0, count) };
+
     loop {}
 }
