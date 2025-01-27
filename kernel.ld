@@ -1,7 +1,7 @@
 ENTRY(boot)
 
 SECTIONS {
-    . = 0x8020000;
+    . = 0x80200000;
 
     .text :{
         KEEP(*(.text.boot));

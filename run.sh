@@ -14,9 +14,12 @@ cargo build
 
 # Start QEMU
 $QEMU \
+    -S \
+    -s \
+    -cpu rv32 \
     -machine virt \
     -bios default \
     -nographic \
     -serial mon:stdio \
     --no-reboot \
-    -kernel target/riscv32imafc-unknown-none-elf/debug/kernel
+    -device loader,file="target/riscv32imafc-unknown-none-elf/debug/kernel",cpu-num=0

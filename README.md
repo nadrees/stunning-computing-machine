@@ -13,7 +13,7 @@ https://operating-system-in-1000-lines.vercel.app/en/01-setting-up-development-e
 
 Install the needed packages
 
-> sudo apt update && sudo apt install -y clang llvm lld qemu-system-riscv32 curl
+> sudo apt update && sudo apt install -y clang llvm lld qemu-system-riscv32 curl lldb
 
 Download OpenBSI (UEFI/BIOS)
 
