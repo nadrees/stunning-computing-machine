@@ -14,8 +14,6 @@ cargo build
 
 # Start QEMU
 $QEMU \
-    -S \
-    -s \
     -cpu rv32 \
     -machine virt \
     -bios default \

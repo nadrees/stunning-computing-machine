@@ -91,3 +91,11 @@ To see this, run
 ```
 
 To get a print out of the current program and its related assembly.
+
+# Random Knowledge Dumps
+
+## Why use -device loader,... instead of -kernel or -bios?
+
+We're building a very-nearly base metal kernel, so we want as much control with as little magic as possible. See:
+
+https://stackoverflow.com/questions/58420670/qemu-bios-vs-kernel-vs-device-loader-file

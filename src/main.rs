@@ -1,7 +1,9 @@
 #![no_main]
 #![no_std]
 
-use core::{panic::PanicInfo, ptr};
+use core::{arch::asm, panic::PanicInfo, ptr};
+
+use kernel::sbi::putchar;
 
 #[panic_handler]
 fn panic(_panic: &PanicInfo<'_>) -> ! {
@@ -30,5 +32,14 @@ fn main() -> ! {
     let count = &raw const __bss as usize - &raw const __bss_end as usize;
     unsafe { ptr::write_bytes(&raw mut __bss, 0, count) };
 
-    loop {}
+    let message = "Hello, World!";
+    for c in message.chars() {
+        putchar(c);
+    }
+
+    loop {
+        unsafe {
+            asm!("wfi");
+        }
+    }
 }
