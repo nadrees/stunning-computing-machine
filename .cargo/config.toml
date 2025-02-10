@@ -2,15 +2,18 @@
 target = "riscv64gc-unknown-none-elf"
 
 [target.riscv64gc-unknown-none-elf]
-runner = "riscv64gc-unknown-none-elf -machine virt -cpu rv64 -bios none -nographic -serial mon:stdio --no-reboot -m 128M -kernel "
-
+runner = "qemu-system-riscv64 -machine virt -cpu rv64 -bios none -nographic -serial mon:stdio --no-reboot -m 128M -kernel "
 rustflags = [
+    "--cfg",
+    "feature=\"board_qemu_virt\"",
     "-C",
     "link-arg=-Tkernel.ld",
     "-C",
     "link-arg=-Map=target/kernel.map",
-    "-C",
-    "link-arg=--verbose",
+    # uncomment this to get verbose output to debug linking phase
+    # "-C",
+    # "link-arg=--verbose",
 ]
+
 [env]
-RUSTC_LOG = "rustc_codegen_ssa::back::link=info"
+# RUSTC_LOG = "rustc_codegen_ssa::back::link=info"

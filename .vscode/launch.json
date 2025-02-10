@@ -1,0 +1,17 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "attach",
+            "name": "Debug",
+            "targetCreateCommands": [
+                "target create ${workspaceFolder}/target/riscv64gc-unknown-none-elf/debug/kernel"
+            ],
+            "processCreateCommands": [
+                "gdb-remote 1234",
+            ],
+            "preLaunchTask": "Launch QEMU"
+        }
+    ]
+}

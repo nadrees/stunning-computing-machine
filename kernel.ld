@@ -9,8 +9,19 @@ memory map - in this case, ram starts at 0x8000_0000, which matches
 the memory map provided by QEMU and most riscv boards
 
 we're using 128 MB of ram for now
+
+See https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c for our board's 
+memory map
+
+memory modifiers:
+* w (writable)
+* x (executable)
+* a (allocatable)
+* r (read only)
+* i (initialized)
 */
 MEMORY {
+    uart (w) : ORIGIN = 0x10000000, LENGTH = 256
     ram (wxa) : ORIGIN = 0x80000000, LENGTH = 128M
 }
 
@@ -101,4 +112,9 @@ SECTIONS {
 
     PROVIDE(_heap_start = _stack_end);
     PROVIDE(_heap_end = _ram_end - _heap_start);
+
+    /*
+    Expose remaining needed memory pointers
+    */
+    PROVIDE(_uart_address = ORIGIN(uart));
 }

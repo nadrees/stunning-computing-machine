@@ -14,7 +14,7 @@ https://operating-system-in-1000-lines.vercel.app/en/01-setting-up-development-e
 
 Install the needed packages
 
-> sudo apt update && sudo apt install -y clang llvm lld qemu-system-riscv64 curl lldb
+> sudo apt update && sudo apt install -y clang-19 llvm-19 lld-19 qemu-system-riscv64 curl lldb-19
 
 Download OpenBSI (UEFI/BIOS)
 
@@ -44,6 +44,7 @@ See https://github.com/rust-embedded/cargo-binutils#readme for details
 * LinkerScript: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
 * Even Better TOML: https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml
 * Dependi: https://marketplace.visualstudio.com/items?itemName=fill-labs.dependi
+* CodeLLDB: https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb
 
 # Rust Embedded Assembly
 
