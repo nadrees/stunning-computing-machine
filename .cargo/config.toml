@@ -1,7 +1,9 @@
 [build]
-target = "riscv32imafc-unknown-none-elf"
+target = "riscv64gc-unknown-none-elf"
 
-[target.riscv32imafc-unknown-none-elf]
+[target.riscv64gc-unknown-none-elf]
+runner = "riscv64gc-unknown-none-elf -machine virt -cpu rv64 -bios none -nographic -serial mon:stdio --no-reboot -m 128M -kernel "
+
 rustflags = [
     "-C",
     "link-arg=-Tkernel.ld",
@@ -10,6 +12,5 @@ rustflags = [
     "-C",
     "link-arg=--verbose",
 ]
-
 [env]
 RUSTC_LOG = "rustc_codegen_ssa::back::link=info"

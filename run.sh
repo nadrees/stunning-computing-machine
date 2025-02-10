@@ -7,17 +7,19 @@
 set -xue 
 
 # QEMU file path
-QEMU=qemu-system-riscv32
+QEMU=qemu-system-riscv64
 
 # build the binary
 cargo build
 
 # Start QEMU
 $QEMU \
-    -cpu rv32 \
+    -cpu rv64 \
     -machine virt \
     -bios default \
     -nographic \
     -serial mon:stdio \
     --no-reboot \
-    -device loader,file="target/riscv32imafc-unknown-none-elf/debug/kernel",cpu-num=0
+    -device loader,file="target/riscv64gc-unknown-none-elf/debug/kernel",cpu-num=0 \
+    -S \
+    -s
