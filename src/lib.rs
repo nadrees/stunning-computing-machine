@@ -2,11 +2,11 @@
 
 pub mod board;
 mod mmio;
-mod uart;
+pub mod uart;
 
 #[macro_export]
 macro_rules! print {
-    ($($args:tt)+) => {
+    ($($args:tt)+) => ({
         use kernel::board::Board;
         use core::fmt::Write;
 
@@ -18,15 +18,15 @@ macro_rules! print {
             }
         };
         let _ = write!(board.get_uart_mut(), $($args)+);
-    };
+    });
 }
 
 #[macro_export]
 macro_rules! println {
-    () => {
+    () => ({
         use kernel::print;
         print!("\r\n")
-    };
+    });
     ($fmt:expr) => {
         use kernel::print;
         print!(concat!($fmt, "\r\n"))

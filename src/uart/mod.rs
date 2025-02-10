@@ -10,14 +10,8 @@ pub trait UART: Write {
     /// The size of the Rx and Tx registers in the UART implementation. At most
     /// this many bits can be transmitted at once without data loss.
     type TRegisterSize: Unsigned;
-}
 
-// these are provided by the linker script
-unsafe extern "C" {
-    unsafe static _uart_address: usize;
-}
-
-#[inline]
-fn get_uart_address() -> usize {
-    &raw const _uart_address as usize
+    /// Attempt to read from the UART. If data is available, it will be returned,
+    /// otherwise None will be returned.
+    fn read(&self) -> Option<Self::TRegisterSize>;
 }

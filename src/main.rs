@@ -6,7 +6,9 @@ use core::{
     panic::PanicInfo,
 };
 
+use kernel::board::Board;
 use kernel::println;
+use kernel::uart::UART;
 
 global_asm!(include_str!("boot.S"));
 
@@ -27,8 +29,21 @@ fn panic(panic: &PanicInfo<'_>) -> ! {
 
 #[no_mangle]
 pub fn rs_main() -> ! {
+    #[cfg(feature = "board_qemu_virt")]
+    let board = kernel::board::qemu_virt::VirtBoard::new();
+
+    let uart = board.get_uart();
+
     println!("Hello, World!");
     loop {
-        unsafe { asm!("wfi") }
+        if let Some(c) = uart.read() {
+            match c {
+                // backspace
+                8 => print!("{}{}{}", 8 as char, ' ', 8 as char),
+                // new line and carriage return
+                10 | 13 => println!(),
+                _ => print!("{}", c as char),
+            }
+        }
     }
 }
