@@ -7,17 +7,10 @@ pub mod uart;
 #[macro_export]
 macro_rules! print {
     ($($args:tt)+) => ({
-        use kernel::board::Board;
+        use kernel::board::BOARD;
         use core::fmt::Write;
 
-        let mut board = {
-            #[cfg(feature = "board_qemu_virt")]
-            {
-                use kernel::board::qemu_virt::VirtBoard;
-                VirtBoard::new()
-            }
-        };
-        let _ = write!(board.get_uart_mut(), $($args)+);
+        let _ = write!(BOARD.lock().get_uart_mut(), $($args)+);
     });
 }
 

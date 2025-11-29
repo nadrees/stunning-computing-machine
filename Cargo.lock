@@ -13,6 +13,7 @@ name = "kernel"
 version = "0.1.0"
 dependencies = [
  "num-traits",
+ "spin",
 ]
 
 [[package]]
@@ -23,3 +24,9 @@ checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
 dependencies = [
  "autocfg",
 ]
+
+[[package]]
+name = "spin"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d5fe4ccb98d9c292d56fec89a5e07da7fc4cf0dc11e156b41793132775d3e591"

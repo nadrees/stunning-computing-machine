@@ -6,7 +6,7 @@ use core::{
     panic::PanicInfo,
 };
 
-use kernel::board::Board;
+use kernel::board::{Board, BOARD};
 use kernel::println;
 use kernel::uart::UART;
 
@@ -29,14 +29,13 @@ fn panic(panic: &PanicInfo<'_>) -> ! {
 
 #[no_mangle]
 pub fn rs_main() -> ! {
-    #[cfg(feature = "board_qemu_virt")]
-    let board = kernel::board::qemu_virt::VirtBoard::new();
-
-    let uart = board.get_uart();
-
     println!("Hello, World!");
     loop {
-        if let Some(c) = uart.read() {
+        let read_result = {
+            let lock = BOARD.lock();
+            lock.get_uart().read()
+        };
+        if let Some(c) = read_result {
             match c {
                 // backspace
                 8 => print!("{}{}{}", 8 as char, ' ', 8 as char),

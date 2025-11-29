@@ -1,4 +1,6 @@
-use crate::uart::UART;
+use spin::{Lazy, Mutex};
+
+use crate::{board::qemu_virt::VirtBoard, uart::UART};
 
 pub mod qemu_virt;
 
@@ -13,3 +15,5 @@ pub trait Board<UARTSize> {
     /// data.
     fn get_uart_mut(&mut self) -> &mut impl UART<TRegisterSize = UARTSize>;
 }
+
+pub static BOARD: Lazy<Mutex<VirtBoard>> = Lazy::new(|| Mutex::new(VirtBoard::new()));
