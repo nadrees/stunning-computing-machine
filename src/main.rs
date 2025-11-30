@@ -10,10 +10,8 @@ use core::{
 
 use kernel::println;
 use kernel::uart::UART;
-use kernel::{
-    board::{Board, BOARD},
-    init,
-};
+use kernel::BOARD;
+use kernel::{board::Board, init};
 
 global_asm!(include_str!("boot.S"));
 

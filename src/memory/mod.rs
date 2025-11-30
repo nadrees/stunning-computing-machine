@@ -1,31 +1,44 @@
 use core::{alloc::GlobalAlloc, ptr};
 
-use crate::linker::{get_heap_end, get_heap_start};
+use crate::Globals;
 
-#[global_allocator]
-static ALLOCATOR: Allocator = Allocator;
-
-/// Initializes the global memory allocator
-/// so that we know where to start allocating memory from.
-pub fn init() {
-    let heap_start_addr = get_heap_start();
-    let heap_end_addr = get_heap_end();
-
-    let heap_start = heap_start_addr as *mut Allocation;
-    let allocation = Allocation {
-        is_free: true,
-        size: heap_end_addr - heap_start_addr - size_of::<Allocation>(),
-    };
-    unsafe { (*heap_start) = allocation }
+pub struct Allocator<TGlobals>
+where
+    TGlobals: Globals + 'static,
+{
+    pub globals: &'static TGlobals,
 }
 
-struct Allocator;
+impl<TGlobals> Allocator<TGlobals>
+where
+    TGlobals: Globals,
+{
+    /// Initializes the global memory allocator
+    /// so that we know where to start allocating memory from.
+    pub fn init(&self) {
+        let heap_start_addr = self.globals.get_heap_start();
+        let heap_end_addr = self.globals.get_heap_end();
 
-unsafe impl GlobalAlloc for Allocator {
+        let heap_start = heap_start_addr as *mut Allocation<TGlobals>;
+        let allocation = Allocation {
+            is_free: true,
+            size: heap_end_addr - heap_start_addr - size_of::<Allocation<TGlobals>>(),
+            globals: self.globals,
+        };
+        unsafe { (*heap_start) = allocation }
+    }
+}
+
+unsafe impl<TGlobals> GlobalAlloc for Allocator<TGlobals>
+where
+    TGlobals: Globals,
+{
     unsafe fn alloc(&self, layout: core::alloc::Layout) -> *mut u8 {
         assert!(layout.size() > 0, "Layout size must be greater than 0");
-        let allocation =
-            find_next_free_with_size(get_heap_start() as *mut Allocation, layout.size());
+        let allocation = find_next_free_with_size(
+            self.globals.get_heap_start() as *mut Allocation<TGlobals>,
+            layout.size(),
+        );
         match allocation {
             Some(allocation) => {
                 (*allocation).maybe_split(layout);
@@ -34,10 +47,10 @@ unsafe impl GlobalAlloc for Allocator {
                 // clobber the header. Return the address of the space pointed to by the header instead.
                 let header_ptr = allocation.byte_add(
                     // move past the header
-                    size_of::<Allocation>()
+                    size_of::<Allocation<TGlobals>>()
                     // move past the offset needed to layout purposes
                     + (*allocation).offset_for_layout(layout),
-                ) as *mut *mut Allocation;
+                ) as *mut *mut Allocation<TGlobals>;
                 core::ptr::write(header_ptr, allocation);
 
                 // now move forward past the pointer to the data address
@@ -48,21 +61,24 @@ unsafe impl GlobalAlloc for Allocator {
     }
 
     unsafe fn dealloc(&self, ptr: *mut u8, _layout: core::alloc::Layout) {
-        let header_ptr = ptr.byte_sub(size_of::<usize>()) as *const *mut Allocation;
+        let header_ptr = ptr.byte_sub(size_of::<usize>()) as *const *mut Allocation<TGlobals>;
         let header = *header_ptr;
         (*header).mark(true);
         (*header).maybe_merge();
     }
 }
 
-unsafe fn find_next_free_with_size(
-    allocation: *mut Allocation,
+unsafe fn find_next_free_with_size<TGlobals>(
+    allocation: *mut Allocation<TGlobals>,
     size: usize,
-) -> Option<*mut Allocation> {
+) -> Option<*mut Allocation<TGlobals>>
+where
+    TGlobals: Globals,
+{
     let mut current = allocation;
     while (*current).is_free == false || (*current).size < size {
         if let Some(next) = (*current).get_next_allocation_address() {
-            current = next as *mut Allocation;
+            current = next as *mut Allocation<TGlobals>;
         } else {
             return None;
         }
@@ -71,12 +87,19 @@ unsafe fn find_next_free_with_size(
 }
 
 #[repr(C)]
-struct Allocation {
+struct Allocation<TGlobals>
+where
+    TGlobals: Globals + 'static,
+{
     is_free: bool,
     size: usize,
+    globals: &'static TGlobals,
 }
 
-impl Allocation {
+impl<TGlobals> Allocation<TGlobals>
+where
+    TGlobals: Globals,
+{
     fn get_size(&self) -> AllocationSizeParts {
         AllocationSizeParts {
             header: size_of_val(self),
@@ -86,9 +109,9 @@ impl Allocation {
     }
 
     /// calculates the memory address of the next Allocation header after this one
-    fn get_next_allocation_address(&self) -> Option<*const Allocation> {
+    fn get_next_allocation_address(&self) -> Option<*const Allocation<TGlobals>> {
         let next_addr = unsafe { (self as *const Self).byte_add(self.get_size().get_total_size()) };
-        if next_addr.addr() >= get_heap_end() {
+        if next_addr.addr() >= self.globals.get_heap_end() {
             return None;
         }
         Some(next_addr)
@@ -115,10 +138,11 @@ impl Allocation {
 
         // next address is at current address + size_of<Allocation> (to account for size of current header) + size
         let next_header_addr =
-            unsafe { (self as *mut Allocation).byte_add(size + self_size.header) };
+            unsafe { (self as *mut Allocation<TGlobals>).byte_add(size + self_size.header) };
         let mut next_header = Allocation {
             is_free: true,
             size: 0,
+            globals: self.globals,
         };
 
         // to get the next header's remaining size, we start with the current allocation's size, which hasn't yet
@@ -127,7 +151,9 @@ impl Allocation {
         // to remove the next header's size. Finally, we need to hold back whatever additional offset was needed for
         // alignment.
         next_header.size = self.size
-            - unsafe { next_header_addr.byte_offset_from_unsigned(self as *mut Allocation) }
+            - unsafe {
+                next_header_addr.byte_offset_from_unsigned(self as *mut Allocation<TGlobals>)
+            }
             - self_size.get_header_and_ptr_size()
             - offset;
         // write out the header

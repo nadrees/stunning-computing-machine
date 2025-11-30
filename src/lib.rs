@@ -1,39 +1,19 @@
-#![no_std]
+#![cfg_attr(not(test), no_std)]
 
 pub mod board;
-mod linker;
 mod memory;
 mod mmio;
+#[cfg(not(test))]
+mod no_std;
 pub mod uart;
 
-/// Performs all initialization that needs to be
-/// done prior to the application starting.
-pub fn init() {
-    memory::init();
-}
+#[cfg(not(test))]
+pub use no_std::{init, linker, BOARD};
 
-#[macro_export]
-macro_rules! print {
-    ($($args:tt)+) => ({
-        use kernel::board::BOARD;
-        use core::fmt::Write;
-
-        let _ = write!(BOARD.lock().get_uart_mut(), $($args)+);
-    });
-}
-
-#[macro_export]
-macro_rules! println {
-    () => ({
-        use kernel::print;
-        print!("\r\n")
-    });
-    ($fmt:expr) => {
-        use kernel::print;
-        print!(concat!($fmt, "\r\n"))
-    };
-    ($fmt:expr, $($args:tt)+) => {
-        use kernel::print;
-        print!(concat!($fmt, "\r\n"), $($args)+)
-    };
+/// This trait exists to allow indirect access to things defined globally, usually
+/// thru the [no_std::linker] mod. Doing this allows us to mock these values in tests.
+trait Globals {
+    fn get_uart_address(&self) -> usize;
+    fn get_heap_start(&self) -> usize;
+    fn get_heap_end(&self) -> usize;
 }

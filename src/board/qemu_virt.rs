@@ -1,6 +1,6 @@
 use crate::{
-    linker::get_uart_address,
     uart::{ns16550::NS16550, UART},
+    Globals,
 };
 
 use super::Board;
@@ -14,9 +14,9 @@ pub struct VirtBoard {
 
 impl VirtBoard {
     /// Constructs a new board, and initializes the peripherals.
-    pub fn new() -> Self {
+    pub(crate) fn new(globals: &impl Globals) -> Self {
         Self {
-            uart: NS16550::new(get_uart_address()),
+            uart: NS16550::new(globals.get_uart_address()),
         }
     }
 }
