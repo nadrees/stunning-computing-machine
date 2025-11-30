@@ -29,10 +29,13 @@ unsafe impl GlobalAlloc for Allocator {
             find_next_free_with_size(get_heap_start() as *mut Allocation, layout.size());
         match allocation {
             Some(allocation) => {
-                let allocation = maybe_split_allocation(allocation, layout.size());
+                (*allocation).maybe_split(layout);
+                (*allocation).mark(false);
                 // we dont want to return the memory address of the header itself, or the application will
                 // clobber the header. Return the address of the space pointed to by the header instead.
-                allocation.byte_add(size_of::<Allocation>()) as *mut u8
+                allocation
+                    .byte_add(size_of::<Allocation>() + (*allocation).offset_for_layout(layout))
+                    as *mut u8
             }
             None => ptr::null::<u8>() as *mut u8,
         }
@@ -58,48 +61,71 @@ unsafe fn find_next_free_with_size(
     Some(current)
 }
 
-unsafe fn maybe_split_allocation(allocation: *mut Allocation, size: usize) -> *mut Allocation {
-    // we can only split the allocation if the size + size_of<Allocation> is less than the size of
-    // the current allocation block. Otherwise, there isn't enough space to both split the space and
-    // store another allocation header.
-    // If allocation.size == size + size_of<Allocation> then there's no point in splitting - the header
-    // would take up the remaining space.
-    if (*allocation).size <= (size + size_of::<Allocation>()) {
-        return allocation;
-    }
-
-    // next address is at current address + size_of<Allocation> (to account for size of current header) + size
-    let next_header_addr = allocation.byte_add(size + size_of::<Allocation>());
-    let mut next_header = Allocation {
-        is_free: true,
-        size: 0,
-        next: None,
-    };
-
-    // to get the next header's remaining size, we start with the current allocation's size, which hasn't yet
-    // been modified. The difference in the current header's address and the next header's address is the space
-    // we're reserving for that will be the current header's size after all modifications are done. We also need
-    // to remove the next header's size.
-    next_header.size = (*allocation).size
-        - next_header_addr.byte_offset_from_unsigned(allocation)
-        - size_of::<Allocation>();
-    // if the current allocation has a next, move it to the next_header, or we'll lose this reference when we
-    // update the current allocation header.
-    next_header.next = (*allocation).next;
-    // write out the header
-    (*next_header_addr) = next_header;
-
-    // finally configure the current allocation header to remove excess size, and set next appropriately
-    (*allocation).next = Some(next_header_addr);
-    (*allocation).size = size;
-
-    // allocation is now fully updated, return it
-    allocation
-}
-
 #[repr(C)]
 struct Allocation {
     is_free: bool,
     size: usize,
     next: Option<*mut Allocation>,
+}
+
+impl Allocation {
+    /// Tries to split the allocation based on the requested layout. After this operation the allocation
+    /// will have a little space as possible to fit the requested layout, and a new allocation will be
+    /// created for the remaining space if there is sufficient left over.
+    fn maybe_split(&mut self, layout: core::alloc::Layout) {
+        let self_size = size_of_val(self);
+
+        let size = layout.size();
+        let offset = self.offset_for_layout(layout);
+
+        // we can only split the allocation if the size + size_of<Allocation> is less than the size of
+        // the current allocation block. Otherwise, there isn't enough space to both split the space and
+        // store another allocation header.
+        // If allocation.size == size + size_of<Allocation> then there's no point in splitting - the header
+        // would take up the remaining space.
+        if self.size <= (size + self_size + offset) {
+            return;
+        }
+
+        // next address is at current address + size_of<Allocation> (to account for size of current header) + size
+        let next_header_addr = unsafe { (self as *mut Allocation).byte_add(size + self_size) };
+        let mut next_header = Allocation {
+            is_free: true,
+            size: 0,
+            next: None,
+        };
+
+        // to get the next header's remaining size, we start with the current allocation's size, which hasn't yet
+        // been modified. The difference in the current header's address and the next header's address is the space
+        // we're reserving for that will be the current header's size after all modifications are done. We also need
+        // to remove the next header's size. Finally, we need to hold back whatever additional offset was needed for
+        // alignment.
+        next_header.size = self.size
+            - unsafe { next_header_addr.byte_offset_from_unsigned(self as *mut Allocation) }
+            - self_size
+            - offset;
+        // if the current allocation has a next, move it to the next_header, or we'll lose this reference when we
+        // update the current allocation header.
+        next_header.next = self.next;
+        // write out the header
+        unsafe {
+            (*next_header_addr) = next_header;
+        }
+
+        // finally configure the current allocation header to remove excess size, and set next appropriately
+        self.next = Some(next_header_addr);
+        self.size = size;
+    }
+
+    /// Marks the allocation as free or not
+    fn mark(&mut self, is_free: bool) {
+        self.is_free = is_free;
+    }
+
+    fn offset_for_layout(&self, layout: core::alloc::Layout) -> usize {
+        // move past the current header's space
+        let data_addr = unsafe { (self as *const Self).byte_add(size_of_val(self)) };
+        // the offset needed is the how far past that alignment we are at the start of the data section
+        layout.align() - (data_addr as usize % layout.align())
+    }
 }
