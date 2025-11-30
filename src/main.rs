@@ -1,14 +1,19 @@
 #![no_main]
 #![no_std]
 
+extern crate alloc;
+
 use core::{
     arch::{asm, global_asm},
     panic::PanicInfo,
 };
 
-use kernel::board::{Board, BOARD};
 use kernel::println;
 use kernel::uart::UART;
+use kernel::{
+    board::{Board, BOARD},
+    init,
+};
 
 global_asm!(include_str!("boot.S"));
 
@@ -29,6 +34,8 @@ fn panic(panic: &PanicInfo<'_>) -> ! {
 
 #[no_mangle]
 pub fn rs_main() -> ! {
+    init();
+
     println!("Hello, World!");
     loop {
         let read_result = {

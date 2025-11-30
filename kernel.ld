@@ -111,7 +111,7 @@ SECTIONS {
     . = ALIGN(8);
 
     PROVIDE(_heap_start = _stack_end);
-    PROVIDE(_heap_end = _ram_end - _heap_start);
+    PROVIDE(_heap_end = _ram_end);
 
     /*
     Expose remaining needed memory pointers

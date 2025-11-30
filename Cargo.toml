@@ -8,6 +8,7 @@ board_qemu_virt = []
 
 [dependencies]
 num-traits = { version = "0.2.19", default-features = false }
+pastey = "0.2.0"
 spin = { version = "0.10.0", default-features = false, features = ["lazy", "mutex", "spin_mutex"] }
 
 [profile.dev]
