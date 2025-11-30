@@ -32,6 +32,16 @@ You can quit from the console by using the command `quit`.
 
 You can force quit QEMU at any time using `Ctrl + A, x`.
 
+# Running tests
+
+In order to run tests, you need to explicitly target the library (`--lib`) and specify the native host platform, as the default in the `./.cargo/config.toml` file is configured for the RISC-V architecture.
+
+To get your native triple, run `rustc -vV | sed -n 's|host: ||p'`.
+
+The full command to run tests looks like `cargo test --lib --target <your target>`
+
+You can do this all at once with the command `cargo test --lib --target $(rustc -vV | sed -n 's|host: ||p')`
+
 # Debugging
 
 A launch configuration for debugging has been configured for VS Code. Use the configuration to launch QEMU in debug

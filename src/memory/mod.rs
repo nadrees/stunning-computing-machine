@@ -1,6 +1,8 @@
 use core::{alloc::GlobalAlloc, ptr};
 
-use crate::Globals;
+use crate::{memory::allocation_size_parts::AllocationSizeParts, Globals};
+
+mod allocation_size_parts;
 
 pub struct Allocator<TGlobals>
 where
@@ -192,30 +194,5 @@ where
         let data_addr = unsafe { (self as *const Self).byte_add(size_of_val(self)) };
         // the offset needed is the how far past that alignment we are at the start of the data section
         layout.align() - (data_addr as usize % layout.align())
-    }
-}
-
-/// Helper struct to track the various elements that consume memory for each allocation
-///
-/// Each property tracks how many bytes that part of the Allocation uses in memory.
-struct AllocationSizeParts {
-    /// how many bytes the "header" (the actual Allocation struct) takes
-    header: usize,
-    /// each allocation stores a pointer to the header 1 word before the
-    /// data section, so that we can find the header again when deallocating
-    header_ptr: usize,
-    /// how many bytes were reserved for data
-    data: usize,
-}
-
-impl AllocationSizeParts {
-    /// Returns the total number of bytes needed to skip past this allocation.
-    /// This is the same as the address for the next allocation
-    fn get_total_size(&self) -> usize {
-        self.data + self.header + self.header_ptr
-    }
-
-    fn get_header_and_ptr_size(&self) -> usize {
-        self.header + self.header_ptr
     }
 }
