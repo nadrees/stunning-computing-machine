@@ -8,6 +8,7 @@ unsafe extern "C" {
 macro_rules! make_get_linker_variable {
     ($name:ident) => {
         pastey::paste! {
+            #[inline]
             pub fn [<get $name>]() -> usize {
                 &raw const $name as usize
             }

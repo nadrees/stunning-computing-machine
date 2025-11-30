@@ -8,7 +8,6 @@ use core::{
     panic::PanicInfo,
 };
 
-use alloc::vec;
 use kernel::println;
 use kernel::uart::UART;
 use kernel::{
@@ -38,9 +37,6 @@ pub fn rs_main() -> ! {
     init();
 
     println!("Hello, World!");
-
-    let mut v = vec![1, 2, 3];
-
     loop {
         let read_result = {
             let lock = BOARD.lock();
