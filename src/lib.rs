@@ -1,8 +1,16 @@
 #![no_std]
 
 pub mod board;
+mod linker;
+mod memory;
 mod mmio;
 pub mod uart;
+
+/// Performs all initialization that needs to be
+/// done prior to the application starting.
+pub fn init() {
+    memory::init();
+}
 
 #[macro_export]
 macro_rules! print {
