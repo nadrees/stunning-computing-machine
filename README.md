@@ -40,11 +40,7 @@ See https://github.com/rust-embedded/cargo-binutils#readme for details
 
 ## Recommended VSCode Extensions
 
-* rust-analyzer: https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer
-* LinkerScript: https://marketplace.visualstudio.com/items?itemName=ZixuanWang.linkerscript
-* Even Better TOML: https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml
-* Dependi: https://marketplace.visualstudio.com/items?itemName=fill-labs.dependi
-* CodeLLDB: https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb
+We have configured VSCode to automatically recommend the needed extensions for this project. You should install all when prompted.
 
 # Rust Embedded Assembly
 
