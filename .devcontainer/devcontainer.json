@@ -1,0 +1,31 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/rust
+{
+	"name": "Rust",
+	"build": {
+		// Path is relative to the devcontainer.json file.
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"rust-lang.rust-analyzer",
+				"ZixuanWang.linkerscript",
+				"tamasfe.even-better-toml",
+				"fill-labs.dependi",
+				"vadimcn.vscode-lldb",
+				"github.vscode-github-actions",
+				"ms-azuretools.vscode-containers",
+				"ms-vscode-remote.remote-containers"
+			]
+		}
+	},
+	// Use 'mounts' to make the cargo cache persistent in a Docker Volume.
+	"mounts": [
+		{
+			"source": "devcontainer-cargo-cache-${devcontainerId}",
+			"target": "/usr/local/cargo",
+			"type": "volume"
+		}
+	]
+}
