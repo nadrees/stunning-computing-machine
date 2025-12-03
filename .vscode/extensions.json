@@ -1,11 +1,6 @@
 {
     "recommendations": [
-        "rust-lang.rust-analyzer",
-        "ZixuanWang.linkerscript",
-        "tamasfe.even-better-toml",
-        "fill-labs.dependi",
-        "vadimcn.vscode-lldb",
-        "github.vscode-github-actions",
-        "ms-azuretools.vscode-containers"
+        "ms-azuretools.vscode-containers",
+        "ms-vscode-remote.remote-containers"
     ]
 }

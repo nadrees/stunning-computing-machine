@@ -5,38 +5,9 @@ This is a repository of me messing around and learning how operating systems wor
 
 # Setup
 
-We follow the Ubuntu setup from the guide. They've been copied here for convenience, but should they diverge follow the instructions in the guide over the ones here. 
+We have configured a devcontainer which should configure everything that's needed to get started. We have also configured vscode to recommend the dev containers extension. When prompted, install the extension on your host machine, reload, and then when prompted again select the option to rebuild the container and reopen.
 
-## From the guide
-
-https://osblog.stephenmarz.com/ch0.html 
-https://operating-system-in-1000-lines.vercel.app/en/01-setting-up-development-environment
-
-Install the needed packages
-
-> sudo apt update && sudo apt install -y clang-19 llvm-19 lld-19 qemu-system-riscv64 curl lldb-19
-
-Download OpenBSI (UEFI/BIOS)
-
-NOTE: Here we're using the version from the latest stable branch. The master branch is for active development, so you'll need to update the url to whatever the current latest is.
-
-> curl -LO https://github.com/qemu/qemu/blob/stable-9.2/pc-bios/opensbi-riscv64-generic-fw_dynamic.bin
-
-Check that clang supports riscv64:
-
-> clang -print-targets | grep riscv64
-
-## Install the needed rust target
-
-> rustup target add riscv64gc-unknown-none-elf
-
-## Install recommended cargo utilties
-
-> cargo install cargo-binutils
-
-> rustup component add llvm-tools
-
-See https://github.com/rust-embedded/cargo-binutils#readme for details
+Inside the container, we have pre-installed the cargo-binutils tool to make inspecting the compiled objects easier. See https://github.com/rust-embedded/cargo-binutils#readme for details
 
 ## Recommended VSCode Extensions
 
