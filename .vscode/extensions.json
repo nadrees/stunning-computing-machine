@@ -5,6 +5,7 @@
         "tamasfe.even-better-toml",
         "fill-labs.dependi",
         "vadimcn.vscode-lldb",
-        "github.vscode-github-actions"
+        "github.vscode-github-actions",
+        "ms-azuretools.vscode-containers"
     ]
 }
